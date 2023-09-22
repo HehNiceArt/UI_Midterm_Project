@@ -10,28 +10,29 @@ public class ButtonsManager : MonoBehaviour
     public Image imageToScale;
     private bool isPressed = false;
     [Range(0, 1)]
-    public float targetScale;
+    private float targetScale;
     [Range(0, 1)]
     public float duration;
-    private float zeroVal = 0;
-    public Vector3 rotate;
+    private readonly float zeroVal = 0;
+    private Vector3 rotate;
     private Vector3 inverse;
+    private Vector3 targetPos;
+    private Vector3 originalPos;
+    private float horizontalAxis = 720;
 
-    /*public void Zoom()
+    public void Start()
     {
-        float zoomVal = 0;
-        targetScale = isPressed ? 25.0f : zoomVal;
-        imageToScale.transform.DOScale(targetScale, 0.25f);
-        isPressed = !isPressed;
-    }*/
-
+        //reads and inputs the original position of the image
+        originalPos = imageToScale.rectTransform.localPosition;
+        rotate = new Vector3(0, 180, 0);
+        targetPos = new Vector3(0, 360, 0);
+    }
     //scale
-
     public void Scale()
     {
         imageToScale.DOFade(0, duration);
         targetScale = isPressed ? 2.0f : zeroVal;
-        imageToScale.transform.DOScale(targetScale, duration).SetEase(Ease.Linear);
+        TargetScale();
         isPressed = !isPressed;
         if (!isPressed)
         {
@@ -44,7 +45,7 @@ public class ButtonsManager : MonoBehaviour
     {
         //(condition) = someBooleanExpression ? true path : false path
         targetScale = isPressed ? 2.0f : zeroVal;
-        imageToScale.transform.DOScale(targetScale, duration).SetEase(Ease.Linear);
+        TargetScale();
         isPressed = !isPressed;
     }
 
@@ -63,13 +64,10 @@ public class ButtonsManager : MonoBehaviour
     //flip
     public void Flip()
     {
-        
         targetScale = isPressed ? 2.0f : zeroVal;
         imageToScale.transform.DORotate(rotate, duration);
-
         isPressed = !isPressed;
-
-        if(!isPressed)
+        if (!isPressed)
         {
             imageToScale.transform.DORotate(inverse, duration);
         }
@@ -78,10 +76,37 @@ public class ButtonsManager : MonoBehaviour
     public void Drop()
     {
 
+        targetScale = isPressed ? 2.0f : zeroVal;
+        imageToScale.DOFade(0, duration);
+        TargetScale();
+        imageToScale.transform.DOLocalMove(targetPos, duration).SetEase(Ease.Linear);
+        isPressed = !isPressed;
+        if (!isPressed)
+        {
+            imageToScale.DOFade(1, duration);
+            TargetScale();
+            OriginalPosition();
+        }
     }
     //fly
     public void Fly()
     {
-
+        targetScale = isPressed ? 2.0f : zeroVal;
+        imageToScale.transform.DOMoveX(horizontalAxis, duration);
+        isPressed = !isPressed;
+        if (!isPressed)
+        {
+            OriginalPosition();
+        }
     }
+
+    public void OriginalPosition()
+    {
+        imageToScale.transform.DOLocalMove(originalPos, duration).SetEase(Ease.OutBack);
+    }
+    public void TargetScale()
+    {
+        imageToScale.transform.DOScale(targetScale, duration).SetEase(Ease.Linear);
+    }
+
 }
